@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "SlashCommand(/sp.constitution)",
+      "Bash(git fetch:*)",
+      "Bash(powershell.exe:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

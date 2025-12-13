@@ -1,0 +1,10 @@
+build/
+node_modules/
+.docusaurus/
+coverage/
+src/
+*.ts
+*.tsx
+tsconfig.json
+.eslintrc.js
+.prettierrc.js

@@ -1,0 +1,25 @@
+Mere paas robotics capstone ke kuch draft specs hain. Mujhe ek final, clean, hackathon-ready Markdown document generate karo (2000–3500 words) jiska title ho: “Physical AI & Humanoid Robotics Capstone Specification”.
+
+Is final spec mein yeh sab MUST include karo:
+
+- 4 core modules:
+  1) ROS 2 (robot nervous system)
+  2) Gazebo/Unity digital twin
+  3) NVIDIA Isaac (Isaac Sim + AI pipelines)
+  4) Vision-Language-Action (VLA)
+
+- 12–13 week ka learning timeline
+- Complete technical architecture pipeline (ROS2 → Gazebo/Unity → Isaac → VLA)
+- Capstone flow: voice command → VLA planning → navigation → object identification → manipulation
+- Hardware requirements: RTX 4070 Ti+, Jetson Orin Nano/NX, depth sensors, Unitree Go2/G1
+- On-prem vs cloud-native lab comparison
+- Final deliverables section
+
+Restrictions:
+- No code samples
+- No mechanical blueprints
+- No detailed lesson plans
+- Bas structured, readable, technical, hackathon-ready Markdown spec.
+
+Output:
+Ek consolidated fina
