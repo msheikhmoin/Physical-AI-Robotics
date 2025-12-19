@@ -20,3 +20,10 @@
 .cache
 *.tsbuildinfo
 .docusaurus
+
+# Secrets
+.env
+
+# Python caches
+__pycache__/
+*.pyc

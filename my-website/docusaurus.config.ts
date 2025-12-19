@@ -12,15 +12,16 @@ const config: Config = {
   },
 
   // Set the production url of your site here
-  url: 'https://your-github-username.github.io',
+  url: 'https://msheikhmoin.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/', // Set to root for GitHub Pages or custom domain
+  baseUrl: '/Physical-AI-Robotics/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'your-github-username', // Usually your GitHub org/user name.
-  projectName: 'Robotics', // Usually your repo name.
+  organizationName: 'msheikhmoin',
+  projectName: 'Physical-AI-Robotics',
+  // deploymentBranch: 'gh-pages', // Docusaurus deploy command handles this, not a direct config property.
 
   onBrokenLinks: 'throw',
 
@@ -80,6 +81,7 @@ const config: Config = {
           sidebarId: 'bookSidebar', // Updated sidebarId
           label: 'Course Content', // Updated label
         },
+        {to: '/rag-chatbot', label: 'RAG Chatbot', position: 'left'},
         {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://github.com/',
