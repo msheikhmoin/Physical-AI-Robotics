@@ -16,7 +16,7 @@ interface Message {
   timestamp: string;
 }
 
-const API_ENDPOINT = "http://127.0.0.1:8000/chat";
+const API_ENDPOINT = "https://moin-robo-robotics-backend.hf.space/chat";
 
 /**
  * A loading indicator component to show while waiting for the bot's response.
