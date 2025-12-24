@@ -1,165 +1,105 @@
-/**
- * RAGChatbot/index.tsx
- *
- * The main component for the RAG (Retrieval-Augmented Generation) Chatbot UI.
- * It manages state for chat messages, loading status, and user input.
- * It handles communication with the backend FastAPI service.
- */
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import styles from './styles.module.css';
 
-// --- Type Definitions ---
 interface Message {
-  id: number;
   text: string;
-  sender: 'user' | 'bot';
-  timestamp: string;
+  isUser: boolean;
 }
 
-const API_ENDPOINT = "https://moin-robo-robotics-backend.hf.space/chat";
-
-/**
- * A loading indicator component to show while waiting for the bot's response.
- */
-const LoadingIndicator = () => (
-    <div className={`${styles.message} ${styles.botMessage} ${styles.loadingIndicator}`}>
-        <div className={styles.loadingDots}>
-            <span></span>
-            <span></span>
-            <span></span>
-        </div>
-    </div>
-);
-
-/**
- * The main Chatbot component.
- */
 const RAGChatbot: React.FC = () => {
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [input, setInput] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const chatPanelRef = useRef<HTMLDivElement>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const chatWindowRef = useRef<HTMLDivElement>(null);
 
-    // Automatically scroll to the bottom of the chat panel when new messages are added.
-    useEffect(() => {
-        if (chatPanelRef.current) {
-            chatPanelRef.current.scrollTop = chatPanelRef.current.scrollHeight;
-        }
-    }, [messages, isLoading]);
-    
-    // Add a welcome message on component mount.
-    useEffect(() => {
-        setMessages([
-            {
-                id: Date.now(),
-                text: "Hello! Ask me a question about the content of the book.",
-                sender: 'bot',
-                timestamp: new Date().toLocaleTimeString()
-            }
-        ]);
-    }, []);
+  useEffect(() => {
+    setMessages([{ text: 'Hello! How can I help you today?', isUser: false }]);
+  }, []);
 
-    /**
-     * Handles sending the user's message to the backend API.
-     */
-    const handleSendMessage = async () => {
-        const trimmedInput = input.trim();
-        if (!trimmedInput) return;
+  useEffect(() => {
+    if (chatWindowRef.current) {
+      chatWindowRef.current.scrollTop = chatWindowRef.current.scrollHeight;
+    }
+  }, [messages, isLoading]);
 
-        const userMessage: Message = {
-            id: Date.now(),
-            text: trimmedInput,
-            sender: 'user',
-            timestamp: new Date().toLocaleTimeString(),
-        };
+  const handleSendMessage = async () => {
+    if (inputValue.trim() === '' || isLoading) return;
 
-        setMessages(prevMessages => [...prevMessages, userMessage]);
-        setInput('');
-        setIsLoading(true);
+    const userMessage: Message = { text: inputValue, isUser: true };
+    setMessages(prevMessages => [...prevMessages, userMessage]);
+    setInputValue('');
+    setIsLoading(true);
 
-        try {
-            // Check for selected text on the page
-            const selection = window.getSelection();
-            const selected_text = selection ? selection.toString().trim() : null;
+    try {
+      const response = await fetch('https://moin-robo-robotics-backend.hf.space/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          question: inputValue,
+          selected_text: null,
+        }),
+      });
 
-            const response = await fetch(API_ENDPOINT, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    question: trimmedInput,
-                    selected_text: selected_text,
-                }),
-            });
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-            if (!response.ok) {
-                throw new Error('Network response was not ok.');
-            }
+      const data = await response.json();
+      const botMessage: Message = { text: data.answer, isUser: false };
+      setMessages(prevMessages => [...prevMessages, botMessage]);
+    } catch (error) {
+      const errorMessage: Message = { text: 'Sorry, something went wrong. Please try again.', isUser: false };
+      setMessages(prevMessages => [...prevMessages, errorMessage]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-            const data = await response.json();
-            
-            const botMessage: Message = {
-                id: Date.now() + 1, // Ensure unique ID
-                text: data.answer,
-                sender: 'bot',
-                timestamp: new Date().toLocaleTimeString(),
-            };
-            setMessages(prevMessages => [...prevMessages, botMessage]);
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSendMessage();
+    }
+  };
 
-        } catch (error) {
-            console.error("Error fetching chat response:", error); // Added for debugging
-            const errorMessage: Message = {
-                id: Date.now() + 1,
-                text: 'Sorry, something went wrong. Please try again.',
-                sender: 'bot',
-                timestamp: new Date().toLocaleTimeString(),
-            };
-            setMessages(prevMessages => [...prevMessages, errorMessage]);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    return (
-        <div className={styles.chatContainer}>
-            {/* Panel to display chat messages */}
-            <div className={styles.chatPanel} ref={chatPanelRef}>
-                {messages.map((msg) => (
-                    <div key={msg.id} className={`${styles.message} ${msg.sender === 'user' ? styles.userMessage : styles.botMessage}`}>
-                        <div className={styles.messageSender}>{msg.sender === 'user' ? 'You' : 'Bot'}</div>
-                        <div className={styles.messageText}>{msg.text}</div>
-                        <div className={styles.messageTimestamp}>{msg.timestamp}</div>
-                    </div>
-                ))}
-                {isLoading && <LoadingIndicator />}
+  return (
+    <div className={styles.chatbotContainer}>
+      <div className={styles.chatWindow} ref={chatWindowRef}>
+        {messages.map((message, index) => (
+          <div
+            key={index}
+            className={`${styles.message} ${message.isUser ? styles.userMessage : styles.botMessage}`}
+          >
+            {message.text}
+          </div>
+        ))}
+        {isLoading && (
+          <div className={`${styles.message} ${styles.botMessage}`}>
+            <div className={styles.loadingDots}>
+              <span></span>
+              <span></span>
+              <span></span>
             </div>
-
-            {/* Input area for the user */}
-            <div className={styles.inputArea}>
-                <textarea
-                    className={styles.textInput}
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                        if (e.key === 'Enter' && !e.shiftKey) {
-                            e.preventDefault();
-                            handleSendMessage();
-                        }
-                    }}
-                    placeholder="Type your message..."
-                    rows={1}
-                />
-                <button
-                    className={styles.submitButton}
-                    onClick={handleSendMessage}
-                    disabled={isLoading || !input.trim()}
-                >
-                    Send
-                </button>
-            </div>
-        </div>
-    );
+          </div>
+        )}
+      </div>
+      <div className={styles.inputArea}>
+        <input
+          type="text"
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Type your message..."
+          className={styles.inputBox}
+          disabled={isLoading}
+        />
+        <button onClick={handleSendMessage} className={styles.sendButton} disabled={isLoading}>
+          Send
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default RAGChatbot;

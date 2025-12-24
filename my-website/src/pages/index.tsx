@@ -1,3 +1,4 @@
+import RAGChatbot from '@site/src/components/RAGChatbot';
 import type {ReactNode} from 'react';
 import clsx from 'clsx';
 import Link from '@docusaurus/Link';
@@ -38,6 +39,11 @@ export default function Home(): ReactNode {
       <HomepageHeader />
       <main>
         <HomepageFeatures />
+
+        {/* ===== RAG Chatbot Start ===== */}
+        <RAGChatbot />
+        {/* ===== RAG Chatbot End ===== */}
+
       </main>
     </Layout>
   );
